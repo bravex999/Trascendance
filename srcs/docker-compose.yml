@@ -21,9 +21,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    environment:
-      NODE_ENV: production
-      UPLOAD_DIR: /app/uploads
     volumes:
       - user_uploads:/app/uploads
     networks: [trascen]
