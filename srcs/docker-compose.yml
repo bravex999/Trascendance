@@ -1,0 +1,51 @@
+services:
+  db:
+    container_name: database
+    image: postgres:16
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks: [trascen]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    container_name: nextjs
+    build: ./requirements/app
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      UPLOAD_DIR: /app/uploads
+    command: sh -c "npx prisma migrate deploy && npm run start"
+    volumes:
+      - user_uploads:/app/uploads
+    networks: [trascen]
+
+  nginx:
+    container_name: nginx
+    build: ./requirements/nginx
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "443:443"
+    volumes:
+      - user_uploads:/app/uploads:ro
+    networks: [trascen]
+
+volumes:
+  db_data:
+  user_uploads:
+
+networks:
+  trascen:
+    driver: bridge
