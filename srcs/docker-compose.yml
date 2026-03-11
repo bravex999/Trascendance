@@ -1,7 +1,7 @@
 services:
   db:
     container_name: database
-    image: postgres:16-bookworm
+    image: postgres:16-bookworm@sha256:sha256:3daa88ea6b4f430fa93bec541be8e295f021bb399929d75d2b768d8b9778f7cd
     restart: unless-stopped
     env_file: .env
     volumes:
