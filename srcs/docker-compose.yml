@@ -1,7 +1,7 @@
 services:
   db:
     container_name: database
-    image: postgres:16
+    image: postgres:16-bookworm
     restart: unless-stopped
     env_file: .env
     volumes:
